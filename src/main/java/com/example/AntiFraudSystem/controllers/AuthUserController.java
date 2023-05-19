@@ -29,4 +29,5 @@ public class AuthUserController {
 
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
+
 }

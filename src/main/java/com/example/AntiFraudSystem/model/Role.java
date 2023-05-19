@@ -1,35 +1,21 @@
 package com.example.AntiFraudSystem.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
-    @NotEmpty
     private String name;
 
-    @Column
-    @NotEmpty
-    private String username;
-
-    @Column
-    @NotEmpty
-    private String password;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "role_id", referencedColumnName = "id")
-    private Role role;
 }
