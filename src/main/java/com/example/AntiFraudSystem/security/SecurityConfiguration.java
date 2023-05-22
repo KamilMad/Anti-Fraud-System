@@ -36,8 +36,16 @@ public class SecurityConfiguration{
                 })
                 .authorizeHttpRequests(auth ->{
                     auth.requestMatchers(HttpMethod.GET,"/api/auth/list/**").hasAnyAuthority("ADMINISTRATOR", "SUPPORT");
-                    auth.requestMatchers(HttpMethod.POST,"/api/antifraud/transaction/**").hasAuthority("MERCHANT");auth.requestMatchers(HttpMethod.PUT,"/api/auth/role/**").hasAnyAuthority("ADMINISTRATOR");auth.requestMatchers(HttpMethod.DELETE, "/api/auth/user/**").hasAuthority("ADMINISTRATOR");
+                    auth.requestMatchers(HttpMethod.POST,"/api/antifraud/transaction/**").hasAuthority("MERCHANT");
+                    auth.requestMatchers(HttpMethod.PUT,"/api/auth/role/**").hasAnyAuthority("ADMINISTRATOR");
+                    auth.requestMatchers(HttpMethod.DELETE, "/api/auth/user/**").hasAuthority("ADMINISTRATOR");
                     auth.requestMatchers(HttpMethod.PUT,"/api/auth/access/**").hasAuthority("ADMINISTRATOR");
+                    auth.requestMatchers(HttpMethod.GET, "/api/antifraud/suspicious-ip/**").hasAuthority("SUPPORT");
+                    auth.requestMatchers(HttpMethod.DELETE, "/api/antifraud/suspicious-ip/**").hasAuthority("SUPPORT");
+                    auth.requestMatchers(HttpMethod.POST, "/api/antifraud/suspicious-ip/**").hasAuthority("SUPPORT");
+                    auth.requestMatchers(HttpMethod.GET, "/api/antifraud/stolencard/**").hasAuthority("SUPPORT");
+                    auth.requestMatchers(HttpMethod.DELETE, "/api/antifraud/stolencard/**").hasAuthority("SUPPORT");
+                    auth.requestMatchers(HttpMethod.POST, "/api/antifraud/stolencard/**").hasAuthority("SUPPORT");
                     auth.requestMatchers(HttpMethod.GET,"/api/auth/user/{username}").authenticated();
                     auth.requestMatchers(HttpMethod.POST, "/api/auth/user").permitAll();
                     auth.requestMatchers("/actuator/shutdown").permitAll();

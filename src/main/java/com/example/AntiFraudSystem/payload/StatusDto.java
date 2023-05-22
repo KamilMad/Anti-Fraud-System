@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class LockStatus {
+public class StatusDto {
     private String status;
 }

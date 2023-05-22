@@ -61,7 +61,7 @@ public class AuthUserController {
     }
 
     @PutMapping("/access")
-    public ResponseEntity<LockStatus> updateUserAccess(@RequestBody UserAccessRequest userAccessRequest){
+    public ResponseEntity<StatusDto> updateUserAccess(@RequestBody UserAccessRequest userAccessRequest){
         return new ResponseEntity<>(userService.changeAccess(userAccessRequest), HttpStatus.OK);
     }
 }
