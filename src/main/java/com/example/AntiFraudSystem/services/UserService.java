@@ -4,7 +4,7 @@ import com.example.AntiFraudSystem.errors.AdministratorBlockedException;
 import com.example.AntiFraudSystem.errors.RoleAlreadyAssignedException;
 import com.example.AntiFraudSystem.model.Role;
 import com.example.AntiFraudSystem.model.User;
-import com.example.AntiFraudSystem.payload.LockStatus;
+import com.example.AntiFraudSystem.payload.StatusDto;
 import com.example.AntiFraudSystem.payload.UserAccessRequest;
 import com.example.AntiFraudSystem.payload.UserDto;
 import com.example.AntiFraudSystem.payload.UserRoleDto;
@@ -117,7 +117,7 @@ public class UserService {
         return userDto;
     }
 
-    public LockStatus changeAccess(UserAccessRequest userAccessRequest) {
+    public StatusDto changeAccess(UserAccessRequest userAccessRequest) {
 
         User user = userRepository.findByUsername(userAccessRequest.getUsername()).orElseThrow(()
                 -> new UsernameNotFoundException("User not found with username: " + userAccessRequest.getUsername()));
@@ -129,6 +129,6 @@ public class UserService {
         user.setEnabled(!userAccessRequest.getOperation().equals("LOCK"));
         userRepository.save(user);
 
-        return new LockStatus("User " + user.getUsername() + " " + userAccessRequest.getOperation().toLowerCase() + "ed!");
+        return new StatusDto("User " + user.getUsername() + " " + userAccessRequest.getOperation().toLowerCase() + "ed!");
     }
 }

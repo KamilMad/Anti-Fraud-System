@@ -34,4 +34,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleAdministratorBlockedException(AdministratorBlockedException ex){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    @ExceptionHandler(AddressIpAlreadyInDataBase.class)
+    public ResponseEntity<String> handleAddressIpAlreadyInDataBase(AddressIpAlreadyInDataBase ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AddressNotFoundException.class)
+    public ResponseEntity<String> handleAddressNotFoundException(AddressNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CardAlreadyInDatabase.class)
+    public ResponseEntity<String> handleCardAlreadyInDatabase(CardAlreadyInDatabase ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CardNumberNotValid.class)
+    public ResponseEntity<String> handleCardNumberNotValid(CardNumberNotValid ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }
