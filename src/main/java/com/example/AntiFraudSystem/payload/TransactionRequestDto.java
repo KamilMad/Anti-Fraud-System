@@ -1,10 +1,10 @@
 package com.example.AntiFraudSystem.payload;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 
 @Data
 public class TransactionRequestDto {
@@ -22,4 +22,12 @@ public class TransactionRequestDto {
 
     @NotEmpty
     private String number;
+
+    @NotNull
+    @NotBlank
+    private String region;
+
+    @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime date;
 }

@@ -4,8 +4,7 @@ import com.example.AntiFraudSystem.model.AddressIp;
 import com.example.AntiFraudSystem.model.Card;
 import com.example.AntiFraudSystem.model.Transaction;
 import com.example.AntiFraudSystem.payload.StatusDto;
-import com.example.AntiFraudSystem.payload.TransactionDto;
-import com.example.AntiFraudSystem.payload.TransactionRequestDto;
+import com.example.AntiFraudSystem.payload.TransactionResponse;
 import com.example.AntiFraudSystem.services.AddressIPService;
 import com.example.AntiFraudSystem.services.CardService;
 import com.example.AntiFraudSystem.services.TransactionService;
@@ -35,8 +34,8 @@ public class TransactionController {
     }
 
     @PostMapping("/transaction")
-    public ResponseEntity<TransactionDto> makeTransaction(@Valid @RequestBody TransactionRequestDto transaction){
-        return new ResponseEntity<>(transactionService.validate(transaction), HttpStatus.OK);
+    public ResponseEntity<TransactionResponse> makeTransaction(@Valid @RequestBody Transaction transaction){
+        return new ResponseEntity<>(transactionService.makeTransaction(transaction), HttpStatus.OK);
     }
 
     @PostMapping("/suspicious-ip")
