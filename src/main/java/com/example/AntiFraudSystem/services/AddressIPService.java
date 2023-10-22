@@ -23,6 +23,7 @@ public class AddressIPService {
     public AddressIp save(AddressIp address){
 
         String ip = address.getIp();
+
         if (addressIpRepository.findByIp(ip).isPresent())
             throw new AddressIpAlreadyInDataBase("Address ip: " + address.getIp() + " already exist");
 
@@ -31,12 +32,11 @@ public class AddressIPService {
 
     public void delete(String ip){
 
-        Pattern regexp = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
-
+        //Pattern regexp = Pattern.compile("^(0|[1-9]\\d{0,2}|2[0-4]\\d|25[0-5])\\.(0|[1-9]\\d{0,2}|2[0-4]\\d|25[0-5])\\.(0|[1-9]\\d{0,2}|2[0-4]\\d|25[0-5])\\.(0|[1-9]\\d{0,2}|2[0-4]\\d|25[0-5])$");
+        Pattern regexp = Pattern.compile("^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$");
         Matcher matcher = regexp.matcher(ip);
+
+
         if (!matcher.matches()){
             throw new IllegalArgumentException("Address ip: " + ip + " has wrong format");
         }
@@ -51,3 +51,9 @@ public class AddressIPService {
         return addressIpRepository.findAll();
     }
 }
+
+
+ /*Pattern regexp = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");*/
