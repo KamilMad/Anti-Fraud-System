@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,31 +131,31 @@ public class AddressIpServiceTest {
     }
 
     @Test
-    public void testGetAll() {
-        List<AddressIp> addressIpList = new ArrayList<>();
+    public void testGetAllReturnsExpectedList() {
+        List<AddressIp> expectedAddressIpList = new ArrayList<>();
 
         AddressIp addressIp1 = new AddressIp();
         addressIp1.setId(1L);
         addressIp1.setIp("192.168.1.1");
 
         AddressIp addressIp2 = new AddressIp();
-        addressIp1.setId(2L);
-        addressIp1.setIp("192.168.0.1");
+        addressIp2.setId(2L);
+        addressIp2.setIp("192.168.0.1");
 
         AddressIp addressIp3 = new AddressIp();
-        addressIp1.setId(3L);
-        addressIp1.setIp("10.0.0.1");
+        addressIp2.setId(3L);
+        addressIp2.setIp("10.0.0.1");
 
-        addressIpList.add(addressIp1);
-        addressIpList.add(addressIp2);
-        addressIpList.add(addressIp3);
+        expectedAddressIpList.add(addressIp1);
+        expectedAddressIpList.add(addressIp2);
+        expectedAddressIpList.add(addressIp3);
 
-        when(addressIpRepository.findAll()).thenReturn(addressIpList);
+        when(addressIpRepository.findAll()).thenReturn(expectedAddressIpList);
 
         List<AddressIp> returnedList = addressIPService.getAll();
 
-        assertEquals(addressIpList.size(), returnedList.size());
-        assertEquals(addressIpList, returnedList);
+        assertEquals(expectedAddressIpList.size(), returnedList.size());
+        assertEquals(expectedAddressIpList, returnedList);
 
     }
 }
