@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -158,4 +159,15 @@ public class AddressIpServiceTest {
         assertEquals(expectedAddressIpList, returnedList);
 
     }
+
+    @Test
+    public void testGetAllEmptyList() {
+
+        when(addressIpRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<AddressIp> addressIpList = addressIPService.getAll();
+
+        assertTrue(addressIpList.isEmpty());
+    }
+
 }

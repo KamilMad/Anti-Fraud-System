@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -203,6 +204,7 @@ public class CardServiceTest {
         when(cardRepository.findAll()).thenReturn(cardList);
 
         List<Card> returnedList = cardService.getAll();
+
         assertEquals(cardList.size(), returnedList.size());
         assertEquals(cardList, returnedList);
 
@@ -210,4 +212,16 @@ public class CardServiceTest {
         assertTrue(returnedList.contains(card2));
         assertTrue(returnedList.contains(card3));
     }
+
+    @Test
+    public void testGetAllEmptyList() {
+
+        when(cardRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<Card> cardList = cardService.getAll();
+
+        assertTrue(cardList.isEmpty());
+    }
+
+
 }
