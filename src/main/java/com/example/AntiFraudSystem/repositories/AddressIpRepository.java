@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface AddressIpRepository extends JpaRepository<AddressIp, Long> {
     Optional<AddressIp> findByIp(String ip);
+
+
 }
