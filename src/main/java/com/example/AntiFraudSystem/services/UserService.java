@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final RoleService roleService;
     private final BCryptPasswordEncoder passwordEncoder;
 
@@ -64,7 +63,7 @@ public class UserService {
                 orElseThrow(() ->new UsernameNotFoundException("User not found with username " + user.getUsername()));
 
         if (!user.getRole().equals("SUPPORT") && !user.getRole().equals("MERCHANT")){
-            throw new IllegalArgumentException("Illegal. eUser role is " +  eUser.getRole().getName() );
+            throw new IllegalArgumentException("Illegal. eUser role is " +  eUser.getRole().getName());
         }
 
         if (eUser.getRole().getName().equals(user.getRole())){
