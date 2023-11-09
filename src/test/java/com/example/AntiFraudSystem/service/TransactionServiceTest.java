@@ -1,18 +1,12 @@
 package com.example.AntiFraudSystem.service;
 
-<<<<<<< HEAD
 import com.example.AntiFraudSystem.errors.CardNumberNotValid;
-=======
->>>>>>> 6343b30de5db4aa06728129a50466150ca972029
 import com.example.AntiFraudSystem.model.Transaction;
 import com.example.AntiFraudSystem.payload.TransactionRequestDto;
 import com.example.AntiFraudSystem.payload.TransactionResponse;
 import com.example.AntiFraudSystem.repositories.TransactionRepository;
 import com.example.AntiFraudSystem.services.TransactionService;
-<<<<<<< HEAD
 import com.example.AntiFraudSystem.utilities.LuhnAlgorithm;
-=======
->>>>>>> 6343b30de5db4aa06728129a50466150ca972029
 import com.example.AntiFraudSystem.utilities.Status;
 import com.example.AntiFraudSystem.utilities.TransactionStatus;
 import com.example.AntiFraudSystem.utilities.TransactionUtils;
@@ -20,24 +14,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-<<<<<<< HEAD
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-=======
->>>>>>> 6343b30de5db4aa06728129a50466150ca972029
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-<<<<<<< HEAD
 import static org.junit.jupiter.api.Assertions.*;
-=======
->>>>>>> 6343b30de5db4aa06728129a50466150ca972029
+
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,13 +38,6 @@ public class TransactionServiceTest {
     @InjectMocks
     private TransactionService transactionService;
 
-<<<<<<< HEAD
-    @Test
-    public void testMakeTransaction_ValidTransaction() {
-
-        Transaction validTransaction = createTransaction("4000008449433403", "EAP");
-
-=======
     private Transaction validTransaction;
 
     @BeforeEach
@@ -74,7 +53,6 @@ public class TransactionServiceTest {
     @Test
     public void testMakeTransaction_ValidTransaction() {
 
->>>>>>> 6343b30de5db4aa06728129a50466150ca972029
         TransactionStatus transactionStatus = new TransactionStatus();
         transactionStatus.setStatus(Status.ALLOWED);
 
@@ -86,17 +64,12 @@ public class TransactionServiceTest {
         transactionStatus.setReasons(reasons);
 
         when(transactionRepository.save(any(Transaction.class))).thenReturn(validTransaction);
-<<<<<<< HEAD
-=======
-
->>>>>>> 6343b30de5db4aa06728129a50466150ca972029
         when(transactionUtils.getStatus(any(TransactionRequestDto.class))).thenReturn(transactionStatus);
 
         TransactionResponse result = transactionService.makeTransaction(validTransaction);
-
-<<<<<<< HEAD
         assertNotNull(result);
         assertEquals(response, result);
+
     }
 
     @ParameterizedTest
@@ -149,10 +122,6 @@ public class TransactionServiceTest {
         transaction.setAmount(300L);
         transaction.setDate(LocalDateTime.now());
         return transaction;
-=======
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(response, result);
->>>>>>> 6343b30de5db4aa06728129a50466150ca972029
     }
 }
 

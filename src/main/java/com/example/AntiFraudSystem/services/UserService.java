@@ -106,16 +106,6 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    private UserDto mapToDto(User user){
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setName(user.getName());
-        userDto.setUsername(user.getUsername());
-        userDto.setRole(user.getRole().getName());
-
-        return userDto;
-    }
-
     public StatusDto changeAccess(UserAccessRequest userAccessRequest) {
 
         User user = userRepository.findByUsername(userAccessRequest.getUsername()).orElseThrow(()
@@ -129,5 +119,15 @@ public class UserService {
         userRepository.save(user);
 
         return new StatusDto("User " + user.getUsername() + " " + userAccessRequest.getOperation().toLowerCase() + "ed!");
+    }
+
+    private UserDto mapToDto(User user){
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setName(user.getName());
+        userDto.setUsername(user.getUsername());
+        userDto.setRole(user.getRole().getName());
+
+        return userDto;
     }
 }
