@@ -23,8 +23,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -161,10 +164,7 @@ public class UserServiceTest {
 
         UserDto actualUserDto = userService.updateRole(userRoleDto);
         assertEquals(expectedUserDto.getRole(), actualUserDto.getRole());
-
-
     }
-
 
     @Test
     public void testUpdateRole_RoleIsMerchant() {
@@ -188,6 +188,82 @@ public class UserServiceTest {
         assertEquals(expectedUserDto.getRole(), actualUserDto.getRole());
     }
 
+    @Test
+    public void testUserExists_UserExists() {
+        User user = createUser();
+
+        when(userRepository.findByUsername(user.getName())).thenReturn(Optional.of(user));
+
+        boolean result = userService.userExists(user.getName());
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testUserExists_UserDoesNotExist() {
+        User user = createUser();
+        when(userRepository.findByUsername(user.getName())).thenReturn(Optional.empty());
+
+        boolean result = userService.userExists(user.getName());
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testFindAll_ReturnExpectedList() {
+        User user1 = createUser();
+        user1.setEnabled(true);
+        user1.setRole(new Role("Role1"));
+
+        User user2 = createUser();
+        user2.setEnabled(true);
+        user2.setRole(new Role("Role2"));
+
+        List<User> userList = new ArrayList<>();
+        userList.add(user1);
+        userList.add(user2);
+
+        when(userRepository.findAll().stream().collect(Collectors.toList())).thenReturn(userList);
+
+        List<UserDto> actualList = userService.findAll();
+
+        assertNotNull(actualList);
+        assertEquals(2, actualList.size());
+    }
+
+    @Test
+    public void testFindAll_ReturnEmptyList() {
+        List<User> userList = new ArrayList<>();
+        when(userRepository.findAll().stream().collect(Collectors.toList())).thenReturn(userList);
+
+        List<UserDto> actualList = userService.findAll();
+
+        assertTrue(actualList.isEmpty());
+    }
+
+    @Test
+    public void testDeleteUserByUsername_UserDoesNotExist() {
+        User user = createUser();
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
+        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,() -> userService.deleteUserByUsername(user.getUsername()));
+
+        assertEquals("User not found with username: " + user.getUsername(), exception.getMessage());
+        verify(userRepository, times(1)).findByUsername(user.getUsername());
+        verify(userRepository, never()).delete(any(User.class));
+    }
+
+    @Test
+    public void testDeleteUserByUsername_UserExists() {
+        User user = createUser();
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+
+        userService.deleteUserByUsername(user.getUsername());
+
+        verify(userRepository, times(1)).findByUsername(user.getUsername());
+        verify(userRepository, times(1)).delete(user);
+    }
 
     private User createUser() {
         User user = new User();
