@@ -1,8 +1,11 @@
 package com.example.AntiFraudSystem.service;
 
+import com.example.AntiFraudSystem.errors.AdministratorBlockedException;
 import com.example.AntiFraudSystem.errors.RoleAlreadyAssignedException;
 import com.example.AntiFraudSystem.model.Role;
 import com.example.AntiFraudSystem.model.User;
+import com.example.AntiFraudSystem.payload.StatusDto;
+import com.example.AntiFraudSystem.payload.UserAccessRequest;
 import com.example.AntiFraudSystem.payload.UserDto;
 import com.example.AntiFraudSystem.payload.UserRoleDto;
 import com.example.AntiFraudSystem.repositories.UserRepository;
@@ -15,6 +18,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -28,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -243,13 +250,13 @@ public class UserServiceTest {
 
     @Test
     public void testDeleteUserByUsername_UserDoesNotExist() {
-        User user = createUser();
+        String username = "username";
 
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
-        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,() -> userService.deleteUserByUsername(user.getUsername()));
+        when(userRepository.findByUsername(username)).thenThrow(new UsernameNotFoundException("User not found with username: " + username));
+        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,() -> userService.deleteUserByUsername(username));
 
-        assertEquals("User not found with username: " + user.getUsername(), exception.getMessage());
-        verify(userRepository, times(1)).findByUsername(user.getUsername());
+        assertEquals("User not found with username: " + username, exception.getMessage());
+        verify(userRepository, times(1)).findByUsername(username);
         verify(userRepository, never()).delete(any(User.class));
     }
 
@@ -265,11 +272,74 @@ public class UserServiceTest {
         verify(userRepository, times(1)).delete(user);
     }
 
+    @Test
+    public void testChangeAccess_UserDoesNotExist() {
+        UserAccessRequest user = new UserAccessRequest();
+        user.setUsername("username");
+
+        when(userRepository
+                .findByUsername(user.getUsername()))
+                .thenThrow(new UsernameNotFoundException("User not found with username: " + user.getUsername()));
+
+        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,() -> userService.changeAccess(user));
+        assertEquals("User not found with username: " + user.getUsername(), exception.getMessage());
+        verifyNoMoreInteractions(userRepository);
+        verify(userRepository, times(1)).findByUsername(user.getUsername());
+    }
+
+    @Test
+    public void testChangeAccess_UserIsAdministrator() {
+        User administrator = createUser();
+        administrator.setRole(new Role("ADMINISTRATOR"));
+
+        UserAccessRequest user = new UserAccessRequest();
+        user.setUsername("username");
+
+        when(userRepository.findByUsername(administrator.getUsername())).thenReturn(Optional.of(administrator));
+
+        AdministratorBlockedException exception = assertThrows(AdministratorBlockedException.class,() -> userService.changeAccess(user));
+        assertEquals("Administrator cannot be blocked", exception.getMessage());
+        verifyNoMoreInteractions(userRepository);
+        verify(userRepository, times(1)).findByUsername(user.getUsername());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideUserRolesAndOperations")
+    public void testChangeAccess_SuccessfullyChangeUserAccess(String userRole, String userOperation) {
+        User user = createUser();
+        user.setRole(new Role(userRole));
+        user.setEnabled(false);
+
+        UserAccessRequest userAccessRequest = new UserAccessRequest();
+        userAccessRequest.setUsername("username");
+        userAccessRequest.setOperation(userOperation);
+
+        StatusDto expectedStatus = new StatusDto("User " + user.getUsername() + " " + userAccessRequest.getOperation().toLowerCase() + "ed!");
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        StatusDto actualStatus = userService.changeAccess(userAccessRequest);
+
+        assertEquals(expectedStatus, actualStatus);
+
+    }
+
     private User createUser() {
         User user = new User();
         user.setId(1L);
         user.setUsername("username");
         user.setName("name");
         return user;
+    }
+
+    private static Stream<Arguments> provideUserRolesAndOperations() {
+        return Stream.of(
+                Arguments.of("MERCHANT", "LOCK"),
+                Arguments.of("MERCHANT", "UNLOCK"),
+                Arguments.of("SUPPORT", "LOCK"),
+                Arguments.of("SUPPORT", "UNLOCK")
+                // Add more roles and operations as needed
+        );
     }
 }
