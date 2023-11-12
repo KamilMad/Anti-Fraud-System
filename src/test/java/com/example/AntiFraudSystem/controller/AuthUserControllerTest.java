@@ -4,6 +4,7 @@ import com.example.AntiFraudSystem.controllers.AuthUserController;
 import com.example.AntiFraudSystem.model.Role;
 import com.example.AntiFraudSystem.model.User;
 import com.example.AntiFraudSystem.payload.UserDto;
+import com.example.AntiFraudSystem.payload.UserRoleDto;
 import com.example.AntiFraudSystem.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,6 +69,26 @@ public class AuthUserControllerTest {
                         .content(asJsonString(userOne))) // Convert user object to JSON
                         .andExpect(status().isConflict())
                         .andExpect(content().string("User exists"));
+    }
+
+    @Test
+    public void testChangeRole_SuccessfulUpdate() throws Exception {
+        // Arrange
+        UserRoleDto userRoleDto =new UserRoleDto();
+        userRoleDto.setRole("SUPPORT");
+        userRoleDto.setUsername("user");
+
+        UserDto updatedUserDto= new UserDto(1L, "Kamil", "user", "SUPPORT");
+
+        when(userService.updateRole(userRoleDto)).thenReturn(updatedUserDto);
+
+        // Act and Assert
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/api/auth//role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userRoleDto))) // Convert userRoleDto to JSON
+                .andExpect(status().isOk())
+                .andExpect(content().json(asJsonString(updatedUserDto)));
     }
 
     private String asJsonString(final Object obj) {
