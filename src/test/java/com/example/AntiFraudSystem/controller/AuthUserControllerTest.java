@@ -81,8 +81,8 @@ public class AuthUserControllerTest {
         UserDto updatedUserDto= new UserDto(1L, "Kamil", "user", "SUPPORT");
 
         when(userService.updateRole(userRoleDto)).thenReturn(updatedUserDto);
-
-        // Act
+        
+        // Act and Assert
         mockMvc.perform(MockMvcRequestBuilders
                         .put("/api/auth//role")
                         .contentType(MediaType.APPLICATION_JSON)
