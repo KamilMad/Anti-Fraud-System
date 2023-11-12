@@ -5,6 +5,7 @@ import com.example.AntiFraudSystem.model.Role;
 import com.example.AntiFraudSystem.model.User;
 import com.example.AntiFraudSystem.payload.UserDto;
 import com.example.AntiFraudSystem.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +15,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthUserController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -32,8 +31,8 @@ public class AuthUserControllerTest {
     @MockBean
     UserService userService;
 
-    User userOne;
-    User userTwo;
+    private User userOne;
+    private User userTwo;
 
     @BeforeEach
     void setUp(){
@@ -43,22 +42,39 @@ public class AuthUserControllerTest {
     }
 
     @Test
-    public void testRegisterUserSuccess() throws Exception {
-        // Create a sample User object for testing
-        User user = new User();
-        user.setUsername(userOne.getUsername());
-        user.setPassword(userOne.getPassword());
-        user.setName(userOne.getName());
+    public void testRegisterUser_Successfully() throws Exception {
+
+        UserDto userDto = new UserDto(1L, "Kamil", "user", "ADMINISTRATOR");
 
         // Mock the behavior of userService
         when(userService.userExists("user")).thenReturn(false);
-        when(userService.saveUser(userOne)).thenReturn(new UserDto(1L, "Kamil", "user", "ADMINISTRATOR"));
+        when(userService.saveUser(userOne)).thenReturn(userDto);
 
         // Perform the POST request
         mockMvc.perform(post("/api/auth/user")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"user\",\"password\":\"password\",\"name\":\"Kamil\"}")
+                        .content(asJsonString(userOne))
                         .accept(MediaType.APPLICATION_JSON))
                         .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void testRegisterUser_UserExists() throws Exception {
+        when(userService.userExists("user")).thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/api/auth/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userOne))) // Convert user object to JSON
+                        .andExpect(status().isConflict())
+                        .andExpect(content().string("User exists"));
+    }
+
+    private String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
