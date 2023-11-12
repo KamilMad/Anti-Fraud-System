@@ -40,23 +40,36 @@ public class TransactionService {
             throw new IllegalArgumentException("Region not Valid");
         }
 
-        TransactionResponse result = new TransactionResponse();
+        /*  private Status result;
+            private String info;*/
+        TransactionResponse transactionResponse = new TransactionResponse();
+
+        //Have same fields as transaction but without id
         TransactionRequestDto transaction = mapEntityToDto(transaction2);
 
+        /*private Status status;
+          private List<String> reasons; */
         TransactionStatus transactionStatus = transactionUtils.getStatus(transaction);
 
-        result.setResult(transactionStatus.getStatus());
+        //setting Status field with status obtain from transactionStatus that was obtained by transactionUtils.getStatus()
+        transactionResponse.setResult(transactionStatus.getStatus());
 
+        //populate list with reasons obtained from TransactionStatus
         List<String> reasons = transactionStatus.getReasons();
 
-        if (result.getResult().toString().equals("ALLOWED"))
+        if (transactionResponse.getResult().toString().equals("ALLOWED"))
             reasons.add("none");
 
+
+        //sorting reasons alphabetically
         reasons.sort(String::compareTo);
+        //creating string from list of strings, delimiter by ","
         String info = String.join(", ", reasons);
 
-        result.setInfo(info);
-        return result;
+        //setting info field string info
+        transactionResponse.setInfo(info);
+
+        return transactionResponse;
     }
 
 
@@ -71,7 +84,6 @@ public class TransactionService {
     public TransactionRequestDto mapEntityToDto(Transaction transaction){
 
         TransactionRequestDto dto = new TransactionRequestDto();
-
         dto.setAmount(transaction.getAmount());
         dto.setDate(transaction.getDate());
         dto.setNumber(transaction.getNumber());
@@ -80,4 +92,5 @@ public class TransactionService {
 
         return dto;
     }
+
 }
