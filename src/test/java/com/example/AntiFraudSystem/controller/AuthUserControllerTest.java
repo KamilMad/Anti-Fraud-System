@@ -3,6 +3,8 @@ package com.example.AntiFraudSystem.controller;
 import com.example.AntiFraudSystem.controllers.AuthUserController;
 import com.example.AntiFraudSystem.model.Role;
 import com.example.AntiFraudSystem.model.User;
+import com.example.AntiFraudSystem.payload.StatusDto;
+import com.example.AntiFraudSystem.payload.UserAccessRequest;
 import com.example.AntiFraudSystem.payload.UserDto;
 import com.example.AntiFraudSystem.payload.UserRoleDto;
 import com.example.AntiFraudSystem.services.UserService;
@@ -18,7 +20,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -63,8 +67,7 @@ public class AuthUserControllerTest {
     public void testRegisterUser_UserExists() throws Exception {
         when(userService.userExists("user")).thenReturn(true);
 
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/api/auth/user")
+        mockMvc.perform(post("/api/auth/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userOne))) // Convert user object to JSON
                         .andExpect(status().isConflict())
@@ -73,7 +76,6 @@ public class AuthUserControllerTest {
 
     @Test
     public void testChangeRole_SuccessfulUpdate() throws Exception {
-        // Arrange
         UserRoleDto userRoleDto =new UserRoleDto();
         userRoleDto.setRole("SUPPORT");
         userRoleDto.setUsername("user");
@@ -82,14 +84,34 @@ public class AuthUserControllerTest {
 
         when(userService.updateRole(userRoleDto)).thenReturn(updatedUserDto);
         
-        // Act and Assert
-        mockMvc.perform(MockMvcRequestBuilders
-                        .put("/api/auth//role")
+        mockMvc.perform(put("/api/auth//role")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userRoleDto))) // Convert userRoleDto to JSON
                 .andExpect(status().isOk())
                 .andExpect(content().json(asJsonString(updatedUserDto)));
     }
+
+    @Test
+    public void testUpdateUserAccess_SuccesfullUpdate() throws Exception {
+        UserAccessRequest userAccessRequest = new UserAccessRequest();
+        userAccessRequest.setUsername("username");
+        userAccessRequest.setOperation("LOCK");
+
+        StatusDto statusDto = new StatusDto("User " + userAccessRequest.getUsername() + " " + userAccessRequest.getOperation().toLowerCase() + "ed!");
+
+
+        String statusDtoJson = asJsonString(statusDto);
+
+        when(userService.changeAccess(userAccessRequest)).thenReturn(statusDto);
+
+        mockMvc.perform(put("/api/auth/access")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userAccessRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(asJsonString(statusDto)));
+
+    }
+    
 
     private String asJsonString(final Object obj) {
         try {
