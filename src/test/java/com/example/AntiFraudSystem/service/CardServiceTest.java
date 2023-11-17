@@ -4,7 +4,6 @@ import com.example.AntiFraudSystem.errors.CardNumberNotValid;
 import com.example.AntiFraudSystem.model.Card;
 import com.example.AntiFraudSystem.repositories.CardRepository;
 import com.example.AntiFraudSystem.services.CardService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +11,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 

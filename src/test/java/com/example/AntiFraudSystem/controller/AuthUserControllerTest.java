@@ -3,14 +3,13 @@ package com.example.AntiFraudSystem.controller;
 import com.example.AntiFraudSystem.controllers.AuthUserController;
 import com.example.AntiFraudSystem.model.Role;
 import com.example.AntiFraudSystem.model.User;
-import com.example.AntiFraudSystem.payload.StatusDto;
-import com.example.AntiFraudSystem.payload.UserAccessRequest;
-import com.example.AntiFraudSystem.payload.UserDto;
-import com.example.AntiFraudSystem.payload.UserRoleDto;
+import com.example.AntiFraudSystem.payload.*;
 import com.example.AntiFraudSystem.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,8 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.when;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -37,13 +38,10 @@ public class AuthUserControllerTest {
     UserService userService;
 
     private User userOne;
-    private User userTwo;
 
     @BeforeEach
     void setUp(){
-
         userOne = new User(1L,"Kamil", "user", "password", new Role("ADMINISTRATOR"), false);
-        userTwo = new User(1L,"Kamil", "user1", "password1", new Role("MERCHANT"), false);
     }
 
     @Test
@@ -61,6 +59,37 @@ public class AuthUserControllerTest {
                         .content(asJsonString(userOne))
                         .accept(MediaType.APPLICATION_JSON))
                         .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void testGetAllAvailableAuthUsers_Successfully() throws Exception {
+        UserDto userDto1 = createUserDto(1L, "user1", "username1", "SUPPORT");
+        UserDto userDto2 = createUserDto(2L, "user2", "username2", "MERCHANT");
+        UserDto userDto3 = createUserDto(3L, "user3", "username3", "ADMINISTRATOR");
+
+        List<UserDto> users = new ArrayList<>();
+        users.add(userDto1);
+        users.add(userDto2);
+        users.add(userDto3);
+
+        when(userService.findAll()).thenReturn(users);
+
+        mockMvc.perform(get("/api/auth/list"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("user1"))
+                .andExpect(jsonPath("$[1].name").value("user2"))
+                .andExpect(jsonPath("$[2].name").value("user3"));
+    }
+
+    @Test
+    public void testDeleteUser_SuccessfulDeletion() throws Exception {
+
+        String usernameToDelete = "userToDelete";
+        UserDeleteDto expectedResponse = new UserDeleteDto(usernameToDelete, "Deleted successfully!");
+
+        mockMvc.perform(delete("/api/auth/user/{username}", usernameToDelete))
+                .andExpect(status().isOk())
+                .andExpect(content().json(asJsonString(expectedResponse)));
     }
 
     @Test
@@ -91,16 +120,17 @@ public class AuthUserControllerTest {
                 .andExpect(content().json(asJsonString(updatedUserDto)));
     }
 
-    @Test
-    public void testUpdateUserAccess_SuccesfullUpdate() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+            "username, LOCK",
+            "username, UNLOCK"
+    })
+    public void testUpdateUserAccess_SuccessfulUpdate(String username, String operation) throws Exception {
         UserAccessRequest userAccessRequest = new UserAccessRequest();
-        userAccessRequest.setUsername("username");
-        userAccessRequest.setOperation("LOCK");
+        userAccessRequest.setUsername(username);
+        userAccessRequest.setOperation(operation);
 
         StatusDto statusDto = new StatusDto("User " + userAccessRequest.getUsername() + " " + userAccessRequest.getOperation().toLowerCase() + "ed!");
-
-
-        String statusDtoJson = asJsonString(statusDto);
 
         when(userService.changeAccess(userAccessRequest)).thenReturn(statusDto);
 
@@ -119,5 +149,14 @@ public class AuthUserControllerTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private UserDto createUserDto(Long id, String name, String username, String role) {
+        UserDto userDto = new UserDto();
+        userDto.setId(id);
+        userDto.setName(name);
+        userDto.setUsername(username);
+        userDto.setRole(role);
+        return userDto;
     }
 }
