@@ -7,10 +7,12 @@ import com.example.AntiFraudSystem.payload.TransactionRequestDto;
 import com.example.AntiFraudSystem.payload.TransactionResponse;
 import com.example.AntiFraudSystem.repositories.TransactionRepository;
 import com.example.AntiFraudSystem.utilities.LuhnAlgorithm;
+import com.example.AntiFraudSystem.utilities.Status;
 import com.example.AntiFraudSystem.utilities.TransactionStatus;
 import com.example.AntiFraudSystem.utilities.TransactionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.EnumSet;
 import java.util.List;
 
 @Service
@@ -30,55 +32,48 @@ public class TransactionService {
         return validate(transaction);
     }
 
-    public TransactionResponse validate(Transaction transaction2) {
+    private TransactionResponse validate(Transaction transaction) {
 
-        if (!LuhnAlgorithm.isValidCardNumber(transaction2.getNumber())) {
-            throw new CardNumberNotValid("Card number: " + transaction2.getNumber() + " not valid");
-        }
+        validateCardNumber(transaction.getNumber());
+        validateRegion(transaction.getRegion());
 
-        if (!isRegionValid(CodeEnum.valueOf(transaction2.getRegion()))){
-            throw new IllegalArgumentException("Region not Valid");
-        }
+        TransactionRequestDto transactionRequestDto = mapEntityToDto(transaction);
+        TransactionStatus transactionStatus = transactionUtils.getStatus(transactionRequestDto);
 
-        /*  private Status result;
-            private String info;*/
-        TransactionResponse transactionResponse = new TransactionResponse();
-
-        //Have same fields as transaction but without id
-        TransactionRequestDto transaction = mapEntityToDto(transaction2);
-
-        /*private Status status;
-          private List<String> reasons; */
-        TransactionStatus transactionStatus = transactionUtils.getStatus(transaction);
-
-        //setting Status field with status obtain from transactionStatus that was obtained by transactionUtils.getStatus()
-        transactionResponse.setResult(transactionStatus.getStatus());
-
-        //populate list with reasons obtained from TransactionStatus
         List<String> reasons = transactionStatus.getReasons();
-
-        if (transactionResponse.getResult().toString().equals("ALLOWED"))
+        if (Status.ALLOWED.equals(transactionStatus.getStatus()))
             reasons.add("none");
 
+        String info = processReasons(reasons);
 
-        //sorting reasons alphabetically
-        reasons.sort(String::compareTo);
-        //creating string from list of strings, delimiter by ","
-        String info = String.join(", ", reasons);
+        return buildTransactionResponse(transactionStatus.getStatus(), info);
+    }
 
-        //setting info field string info
+    private TransactionResponse buildTransactionResponse(Status result, String info) {
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setResult(result);
         transactionResponse.setInfo(info);
-
         return transactionResponse;
     }
 
+    private void validateCardNumber(String cardNumber) {
+        if (!LuhnAlgorithm.isValidCardNumber(cardNumber)) {
+            throw new CardNumberNotValid("Card number: " + cardNumber + " not valid");
+        }
+    }
+
+    private void validateRegion(String region) {
+        if (!isRegionValid(CodeEnum.valueOf(region))) {
+            throw new IllegalArgumentException("Region not valid");
+        }
+    }
+    private String processReasons(List<String> reasons) {
+        reasons.sort(String::compareTo);
+        return String.join(", ", reasons);
+    }
 
     private boolean isRegionValid(CodeEnum region){
-        for (CodeEnum r : CodeEnum.values()){
-            if (region.equals(r))
-                return true;
-        }
-        return false;
+        return EnumSet.allOf(CodeEnum.class).contains(region);
     }
 
     public TransactionRequestDto mapEntityToDto(Transaction transaction){

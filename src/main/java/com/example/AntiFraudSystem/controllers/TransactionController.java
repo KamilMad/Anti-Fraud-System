@@ -35,7 +35,8 @@ public class TransactionController {
 
     @PostMapping("/transaction")
     public ResponseEntity<TransactionResponse> makeTransaction(@Valid @RequestBody Transaction transaction){
-        return new ResponseEntity<>(transactionService.makeTransaction(transaction), HttpStatus.OK);
+        TransactionResponse response = transactionService.makeTransaction(transaction);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/suspicious-ip")

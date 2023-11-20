@@ -15,6 +15,7 @@ public class TransactionStatus {
 
     private Status status;
     private List<String> reasons;
+
     public TransactionStatus(Status status) {
         this.status = status;
     }

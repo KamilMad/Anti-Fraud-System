@@ -105,27 +105,25 @@ public class TransactionUtils {
         return addressIpRepository.findByIp(transaction.getIp()).isPresent();
     }
 
-    private boolean isRegionCorrelatedWithTwo(TransactionRequestDto transaction) {
-        long count = transactionRepository.countDistinctRegions(transaction.getNumber(),
-                transaction.getRegion(), transaction.getDate().minusHours(1), transaction.getDate());
-        return count == 2;
-    }
+    public void addReasonsForProhibited(TransactionRequestDto transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs){
+        if (isIpSuspicious(transaction)) {
+            reasons.add("ip");
+        }
 
-    private boolean isIpCorrelatedWithTwo(TransactionRequestDto transaction) {
-        long count = transactionRepository.countDistinctIpAddresses(transaction.getNumber(),
-                transaction.getRegion(), transaction.getDate().minusHours(1), transaction.getDate());
-        return count == 2;
-    }
+        if (isCardStolen(transaction)) {
+            reasons.add("card-number");
+        }
 
-    private boolean isRegionCorrelatedWithMoreThanTwo(TransactionRequestDto transaction) {
-        long count = transactionRepository.countDistinctRegions(transaction.getNumber(),
-                transaction.getRegion(), transaction.getDate().minusHours(1), transaction.getDate());
-        return count >= 3;
-    }
+        if (distinctRegions.size() > 3) {
+            reasons.add("region-correlation");
+        }
 
-    private boolean isIpCorrelatedWithMoreThanTwo(TransactionRequestDto transaction) {
-        long count = transactionRepository.countDistinctIpAddresses(transaction.getNumber(),
-                transaction.getRegion(), transaction.getDate().minusHours(1), transaction.getDate());
-        return count >= 3;
+        if (distinctIPs.size() > 3) {
+            reasons.add("ip-correlation");
+        }
+
+        if (isAmountProhibited(transaction)) {
+            reasons.add("amount");
+        }
     }
 }

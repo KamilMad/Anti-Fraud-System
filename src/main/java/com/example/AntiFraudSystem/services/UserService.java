@@ -32,7 +32,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDto saveUser(User user){
+    /*public UserDto saveUser(User user){
 
         User newUser = new User();
 
@@ -56,36 +56,82 @@ public class UserService {
 
         return mapToDto(userRepository.save(newUser));
     }
+*/
+    public UserDto saveUser(User user) {
+        User newUser = new User();
+        copyUserProperties(user, newUser);
+        setEncodedPassword(user, newUser);
+        setRoleAndEnabled(newUser);
 
+        return mapToDto(userRepository.save(newUser));
+    }
+
+    private void copyUserProperties(User source, User destination) {
+        destination.setId(source.getId());
+        destination.setName(source.getName());
+        destination.setUsername(source.getUsername().toLowerCase());
+    }
+
+    private void setEncodedPassword(User source, User destination) {
+        String encodedPassword = passwordEncoder.encode(source.getPassword());
+        destination.setPassword(encodedPassword);
+    }
+
+    private void setRoleAndEnabled(User user) {
+        if (!roleService.roleExist("ADMINISTRATOR")) {
+            setAdministratorRoleAndEnabled(user);
+        } else {
+            setMerchantRoleAndDisabled(user);
+        }
+    }
+
+    private void setAdministratorRoleAndEnabled(User user) {
+        Role administratorRole = roleService.getOrCreateRole("ADMINISTRATOR");
+        user.setRole(administratorRole);
+        user.setEnabled(true);
+    }
+
+    private void setMerchantRoleAndDisabled(User user) {
+        Role merchantRole = roleService.getOrCreateRole("MERCHANT");
+        user.setRole(merchantRole);
+        user.setEnabled(false);
+    }
     public UserDto updateRole(UserRoleDto user){
 
         User eUser = userRepository.findByUsername(user.getUsername()).
                 orElseThrow(() ->new UsernameNotFoundException("User not found with username " + user.getUsername()));
 
-        if (!user.getRole().equals("SUPPORT") && !user.getRole().equals("MERCHANT")){
-            throw new IllegalArgumentException("Illegal. eUser role is " +  eUser.getRole().getName());
-        }
-
-        if (eUser.getRole().getName().equals(user.getRole())){
-            throw new RoleAlreadyAssignedException("Role already assigned to user");
-        }
+        validateUserRole(user.getRole(), eUser);
 
         String newRole = user.getRole();
+        Role roleToUpdate = getRoleForUserRole(newRole);
 
-        if (newRole.equals("SUPPORT")){
-            Role supportRole = roleService.getOrCreateRole("SUPPORT");
-            eUser.setRole(supportRole);
-        }
-        else {
-            Role merchantRole = roleService.getOrCreateRole("MERCHANT");
-            eUser.setRole(merchantRole);
-        }
-
-        userRepository.save(eUser);
+        eUser.setRole(roleToUpdate);
 
         return mapToDto(userRepository.save(eUser));
     }
 
+    private Role getRoleForUserRole(String userRole) {
+        if (userRole.equals("SUPPORT")) {
+            return roleService.getOrCreateRole("SUPPORT");
+        } else {
+            return roleService.getOrCreateRole("MERCHANT");
+        }
+    }
+
+    private boolean isValidRole(String role) {
+        return role.equals("SUPPORT") || role.equals("MERCHANT");
+    }
+
+    private void validateUserRole(String newRole, User eUser) {
+        if (!isValidRole(newRole)) {
+            throw new IllegalArgumentException("Illegal. eUser role is " + eUser.getRole().getName());
+        }
+
+        if (eUser.getRole().getName().equals(newRole)) {
+            throw new RoleAlreadyAssignedException("Role already assigned to user");
+        }
+    }
     public boolean userExists(String username){
         Optional<User> user = userRepository.findByUsername(username);
 
