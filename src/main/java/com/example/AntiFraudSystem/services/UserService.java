@@ -32,31 +32,6 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /*public UserDto saveUser(User user){
-
-        User newUser = new User();
-
-        newUser.setId(user.getId());
-        newUser.setName(user.getName());
-        newUser.setUsername(user.getUsername().toLowerCase());
-
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        newUser.setPassword(encodedPassword);
-
-        if (!roleService.roleExist("ADMINISTRATOR")){
-            Role administratorRole = roleService.getOrCreateRole("ADMINISTRATOR");
-            newUser.setRole(administratorRole);
-            newUser.setEnabled(true);
-        }
-        else {
-            Role merchantRole = roleService.getOrCreateRole("MERCHANT");
-            newUser.setRole(merchantRole);
-            newUser.setEnabled(false);
-        }
-
-        return mapToDto(userRepository.save(newUser));
-    }
-*/
     public UserDto saveUser(User user) {
         User newUser = new User();
         copyUserProperties(user, newUser);

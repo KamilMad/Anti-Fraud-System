@@ -2,6 +2,7 @@ package com.example.AntiFraudSystem.services;
 
 
 import com.example.AntiFraudSystem.errors.CardAlreadyInDatabase;
+import com.example.AntiFraudSystem.errors.CardNotFoundException;
 import com.example.AntiFraudSystem.errors.CardNumberNotValid;
 import com.example.AntiFraudSystem.model.Card;
 import com.example.AntiFraudSystem.repositories.CardRepository;
@@ -23,30 +24,38 @@ public class CardService {
 
     public Card saveCard(Card card){
 
-        if (!LuhnAlgorithm.isValidCardNumber(card.getNumber()))
-            throw new CardNumberNotValid("Card number: " + card.getNumber() + " not valid");
+        validateCardNumber(card.getNumber());
+        ensureCardNumberIsUnique(card.getNumber());
 
-        if (cardRepository.findByNumber(card.getNumber()).isPresent())
-            throw new CardAlreadyInDatabase("Card with number " + card.getNumber() + " exist in db");
+        Card savedCard = new Card();
+        savedCard.setNumber(card.getNumber());
 
-        Card newCard = new Card();
-        newCard.setNumber(card.getNumber());
-
-        return cardRepository.save(newCard);
+        return cardRepository.save(savedCard);
     }
 
     public void deleteCard(String number){
 
-        if (!LuhnAlgorithm.isValidCardNumber(number))
-            throw new CardNumberNotValid("Card number: " + number + " not valid");
+    validateCardNumber(number);
 
         Card card = cardRepository.findByNumber(number).orElseThrow(()
-                -> new UsernameNotFoundException("Card with number: " + number + " not found"));
+                -> new CardNotFoundException("Card with number: " + number + " not found"));
 
         cardRepository.delete(card);
     }
 
     public List<Card> getAll(){
         return cardRepository.findAll();
+    }
+
+    private void validateCardNumber(String cardNumber) {
+        if (!LuhnAlgorithm.isValidCardNumber(cardNumber)) {
+            throw new CardNumberNotValid("Card number: " + cardNumber + " not valid");
+        }
+    }
+
+    private void ensureCardNumberIsUnique(String cardNumber) {
+        if (cardRepository.findByNumber(cardNumber).isPresent()) {
+            throw new CardAlreadyInDatabase("Card with number " + cardNumber + " exists in the database");
+        }
     }
 }

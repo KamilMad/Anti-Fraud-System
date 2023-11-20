@@ -51,6 +51,7 @@ public class TransactionController {
 
     @DeleteMapping("/suspicious-ip/{ip}")
     public ResponseEntity<StatusDto> deleteSuspiciousAddress(@PathVariable String ip){
+
         addressIPService.delete(ip);
 
         return ResponseEntity.status(HttpStatus.OK)

@@ -15,12 +15,18 @@ public class RoleService {
 
     public Role getOrCreateRole(String roleName) {
         Role role = roleRepository.findByName(roleName);
+
         if (role == null) {
-            role = roleRepository.save(new Role(roleName));
+            role = createAndSaveRole(roleName);
         }
+
         return role;
     }
 
+    private Role createAndSaveRole(String roleName) {
+        Role newRole = new Role(roleName);
+        return roleRepository.save(newRole);
+    }
     public boolean roleExist(String name){
         return roleRepository.existsByName(name);
     }
