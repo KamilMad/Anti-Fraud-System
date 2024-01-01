@@ -1,4 +1,4 @@
-# Project Name
+# Anti-Fraud-System
 
 A brief description of your project.
 
@@ -15,25 +15,17 @@ A brief description of your project.
 
 ## Introduction
 
-Provide a concise introduction to your project. What does it do? What problem does it solve? Any goals or objectives?
+This project demonstrates (in a simplified form) the principles of anti-fraud systems in the financial sector. This project contain a system with an expanded role model, a set of REST endpoints responsible for interacting with users, and an internal transaction validation logic based on a set of heuristic rules.
 
 ## Features
 
-List key features of your project.
+1. User Management System
+2. REST Endpoints
+3. Role-Based Access Control
+4. Transaction Validation Logic
+5. Error handling
 
-## Getting Started
-
-Explain how to get a copy of your project up and running on a local machine.
-
-### Prerequisites
-
-What software and dependencies are needed before someone can use your project?
-
-### Installation
-
-Step-by-step instructions on how to install your project.
-
-## Usage
+## Technologies
 
 Provide examples and information on how to use your project. Include code snippets if necessary.
 
