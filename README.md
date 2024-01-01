@@ -5,13 +5,8 @@ A brief description of your project.
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
+- [Technologies](#technologies)
+- [Setup](#setup)
 
 ## Introduction
 
@@ -26,17 +21,12 @@ This project demonstrates (in a simplified form) the principles of anti-fraud sy
 5. Error handling
 
 ## Technologies
+* Spring Boot
+* Spring Security
+* Spring Data JPA
+* Lombok
+* Junit
+* Mockito
+* Docker
 
-Provide examples and information on how to use your project. Include code snippets if necessary.
-
-## Contributing
-
-Explain how others can contribute to your project. Include guidelines for reporting bugs, suggesting enhancements, and submitting pull requests.
-
-## License
-
-Specify the license under which your project is distributed.
-
-## Acknowledgments
-
-Give credit to any external libraries, resources, or individuals that inspired or contributed to your project.
+## Setup
