@@ -108,7 +108,7 @@ public class AddressIpServiceTest {
     public void testDeleteInvalidIpAddressFormat(String invalidIpAddress) {
         // Assert that the method throws IllegalArgumentException with the correct error message
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> addressIPService.delete(invalidIpAddress));
-        assertEquals("Address ip: " + invalidIpAddress + " has wrong format", exception.getMessage());
+        assertEquals("Address ip: " + invalidIpAddress + " has the wrong format", exception.getMessage());
 
         // Verify that findByIp was not called
         verify(addressIpRepository, never()).findByIp(invalidIpAddress);
