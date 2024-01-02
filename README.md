@@ -53,8 +53,7 @@ public class Example {
   }
 }
 
-
-  <script>
+<script>
 function copyToClipboard(elementId) {
   var copyText = document.getElementById(elementId);
   var textArea = document.createElement("textarea");
