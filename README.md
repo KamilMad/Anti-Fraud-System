@@ -30,3 +30,39 @@ This project demonstrates (in a simplified form) the principles of anti-fraud sy
 * Docker
 
 ## Setup
+1.Clone project
+  git clone https://github.com/KamilMad/Anti-Fraud-System.git
+2.Open cloned directory
+  cd Anti-Fraud-System
+3.Build projecy
+  mvn clean install -DskipTests
+4.Build docker image
+  docker run -t anti-fraud-system
+5.Run using docker-compose
+  docker-compose up -d
+
+<div align="center">
+  <button onclick="copyToClipboard('#exampleCode')">Copy Code</button>
+</div>
+
+```java
+// Replace this code with your actual code
+public class Example {
+  public static void main(String[] args) {
+    System.out.println("Hello, World!");
+  }
+}
+
+
+  <script>
+function copyToClipboard(elementId) {
+  var copyText = document.getElementById(elementId);
+  var textArea = document.createElement("textarea");
+  textArea.value = copyText.innerText;
+  document.body.appendChild(textArea);
+  textArea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textArea);
+  alert("Code copied to clipboard!");
+}
+</script>
