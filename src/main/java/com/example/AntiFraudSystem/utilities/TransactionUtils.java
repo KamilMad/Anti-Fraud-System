@@ -1,7 +1,6 @@
 package com.example.AntiFraudSystem.utilities;
 
 import com.example.AntiFraudSystem.model.Transaction;
-import com.example.AntiFraudSystem.payload.TransactionRequestDto;
 import com.example.AntiFraudSystem.repositories.AddressIpRepository;
 import com.example.AntiFraudSystem.repositories.CardRepository;
 import com.example.AntiFraudSystem.repositories.TransactionRepository;

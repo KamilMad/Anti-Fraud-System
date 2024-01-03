@@ -3,8 +3,8 @@ package com.example.AntiFraudSystem.controllers;
 import com.example.AntiFraudSystem.model.AddressIp;
 import com.example.AntiFraudSystem.model.Card;
 import com.example.AntiFraudSystem.model.Transaction;
-import com.example.AntiFraudSystem.payload.StatusDto;
-import com.example.AntiFraudSystem.payload.TransactionResponse;
+import com.example.AntiFraudSystem.payload.StatusDTO;
+import com.example.AntiFraudSystem.payload.TransactionResponseDTO;
 import com.example.AntiFraudSystem.services.AddressIPService;
 import com.example.AntiFraudSystem.services.CardService;
 import com.example.AntiFraudSystem.services.TransactionService;
@@ -34,8 +34,8 @@ public class TransactionController {
     }
 
     @PostMapping("/transaction")
-    public ResponseEntity<TransactionResponse> makeTransaction(@Valid @RequestBody Transaction transaction){
-        TransactionResponse response = transactionService.makeTransaction(transaction);
+    public ResponseEntity<TransactionResponseDTO> makeTransaction(@Valid @RequestBody Transaction transaction){
+        TransactionResponseDTO response = transactionService.makeTransaction(transaction);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -50,12 +50,12 @@ public class TransactionController {
     }
 
     @DeleteMapping("/suspicious-ip/{ip}")
-    public ResponseEntity<StatusDto> deleteSuspiciousAddress(@PathVariable String ip){
+    public ResponseEntity<StatusDTO> deleteSuspiciousAddress(@PathVariable String ip){
 
         addressIPService.delete(ip);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new StatusDto("IP " + ip + " successfully removed!"));
+                .body(new StatusDTO("IP " + ip + " successfully removed!"));
     }
 
     @GetMapping("/suspicious-ip")
@@ -74,10 +74,10 @@ public class TransactionController {
     }
 
     @DeleteMapping("/stolencard/{number}")
-    public ResponseEntity<StatusDto> deleteStolenCard(@PathVariable String number){
+    public ResponseEntity<StatusDTO> deleteStolenCard(@PathVariable String number){
         cardService.deleteCard(number);
 
-        return ResponseEntity.status(HttpStatus.OK). body(new StatusDto("Card " +number + " successfully removed!"));
+        return ResponseEntity.status(HttpStatus.OK). body(new StatusDTO("Card " +number + " successfully removed!"));
     }
 
     @GetMapping("/stolencard")

@@ -4,17 +4,15 @@ import com.example.AntiFraudSystem.errors.AdministratorBlockedException;
 import com.example.AntiFraudSystem.errors.RoleAlreadyAssignedException;
 import com.example.AntiFraudSystem.model.Role;
 import com.example.AntiFraudSystem.model.User;
-import com.example.AntiFraudSystem.payload.StatusDto;
-import com.example.AntiFraudSystem.payload.UserAccessRequest;
-import com.example.AntiFraudSystem.payload.UserDto;
+import com.example.AntiFraudSystem.payload.StatusDTO;
+import com.example.AntiFraudSystem.payload.UserAccessRequestDTO;
+import com.example.AntiFraudSystem.payload.UserDTO;
 import com.example.AntiFraudSystem.payload.UserRoleDto;
 import com.example.AntiFraudSystem.repositories.UserRepository;
 import com.example.AntiFraudSystem.services.RoleService;
 import com.example.AntiFraudSystem.services.UserService;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,17 +62,17 @@ public class UserServiceTest {
         user.setRole(new Role("ADMINISTRATOR"));
         user.setEnabled(true);
 
-        UserDto expectedUserDto = new UserDto(1L, "name", "username", "ADMINISTRATOR");
+        UserDTO expectedUserDTO = new UserDTO(1L, "name", "username", "ADMINISTRATOR");
 
         when(passwordEncoder.encode(any())).thenReturn(password);
         when(roleService.roleExist(any(String.class))).thenReturn(false);
         when(roleService.getOrCreateRole("ADMINISTRATOR")).thenReturn(new Role("ADMINISTRATOR"));
         when(userRepository.save(user)).thenReturn(user);
 
-        UserDto actualUserDto = userService.saveUser(user);
+        UserDTO actualUserDTO = userService.saveUser(user);
 
-        assertNotNull(actualUserDto);
-        assertEquals(expectedUserDto, actualUserDto);
+        assertNotNull(actualUserDTO);
+        assertEquals(expectedUserDTO, actualUserDTO);
     }
 
     @Test
@@ -85,16 +83,16 @@ public class UserServiceTest {
         user.setRole(new Role("MERCHANT"));
         user.setEnabled(false);
 
-        UserDto expectedUserDto = new UserDto(1L, "name", "username", "MERCHANT");
+        UserDTO expectedUserDTO = new UserDTO(1L, "name", "username", "MERCHANT");
         when(passwordEncoder.encode(any())).thenReturn(password);
         when(roleService.roleExist(any(String.class))).thenReturn(true);
         when(roleService.getOrCreateRole("MERCHANT")).thenReturn(new Role("MERCHANT"));
         when(userRepository.save(user)).thenReturn(user);
 
-        UserDto actualUserDto = userService.saveUser(user);
+        UserDTO actualUserDTO = userService.saveUser(user);
 
-        assertNotNull(actualUserDto);
-        assertEquals(expectedUserDto, actualUserDto);
+        assertNotNull(actualUserDTO);
+        assertEquals(expectedUserDTO, actualUserDTO);
     }
 
     @Test
@@ -160,14 +158,14 @@ public class UserServiceTest {
         user.setEnabled(true);
         user.setRole(new Role("MERCHANT"));
 
-        UserDto expectedUserDto = new UserDto(1l, user.getName(), user.getUsername(), supportRole.getName());
+        UserDTO expectedUserDTO = new UserDTO(1l, user.getName(), user.getUsername(), supportRole.getName());
 
         when(userRepository.findByUsername(userRoleDto.getUsername())).thenReturn(Optional.of(user));
         when(roleService.getOrCreateRole("SUPPORT")).thenReturn(supportRole);
         when(userRepository.save(user)).thenReturn(user);
 
-        UserDto actualUserDto = userService.updateRole(userRoleDto);
-        assertEquals(expectedUserDto.getRole(), actualUserDto.getRole());
+        UserDTO actualUserDTO = userService.updateRole(userRoleDto);
+        assertEquals(expectedUserDTO.getRole(), actualUserDTO.getRole());
     }
 
     @Test
@@ -182,14 +180,14 @@ public class UserServiceTest {
         user.setEnabled(true);
         user.setRole(new Role("SUPPORT"));
 
-        UserDto expectedUserDto = new UserDto(1l, user.getName(), user.getUsername(), merchantRole.getName());
+        UserDTO expectedUserDTO = new UserDTO(1l, user.getName(), user.getUsername(), merchantRole.getName());
 
         when(userRepository.findByUsername(userRoleDto.getUsername())).thenReturn(Optional.of(user));
         when(roleService.getOrCreateRole("MERCHANT")).thenReturn(merchantRole);
         when(userRepository.save(user)).thenReturn(user);
 
-        UserDto actualUserDto = userService.updateRole(userRoleDto);
-        assertEquals(expectedUserDto.getRole(), actualUserDto.getRole());
+        UserDTO actualUserDTO = userService.updateRole(userRoleDto);
+        assertEquals(expectedUserDTO.getRole(), actualUserDTO.getRole());
     }
 
     @Test
@@ -229,7 +227,7 @@ public class UserServiceTest {
 
         when(userRepository.findAll().stream().collect(Collectors.toList())).thenReturn(userList);
 
-        List<UserDto> actualList = userService.findAll();
+        List<UserDTO> actualList = userService.findAll();
 
         assertNotNull(actualList);
         assertEquals(2, actualList.size());
@@ -240,7 +238,7 @@ public class UserServiceTest {
         List<User> userList = new ArrayList<>();
         when(userRepository.findAll().stream().collect(Collectors.toList())).thenReturn(userList);
 
-        List<UserDto> actualList = userService.findAll();
+        List<UserDTO> actualList = userService.findAll();
 
         assertTrue(actualList.isEmpty());
     }
@@ -271,17 +269,15 @@ public class UserServiceTest {
 
     @Test
     public void testChangeAccess_UserDoesNotExist() {
-        UserAccessRequest user = new UserAccessRequest();
-        user.setUsername("username");
-
+        UserAccessRequestDTO user = new UserAccessRequestDTO("username", "");
         when(userRepository
-                .findByUsername(user.getUsername()))
-                .thenThrow(new UsernameNotFoundException("User not found with username: " + user.getUsername()));
+                .findByUsername(user.username()))
+                .thenThrow(new UsernameNotFoundException("User not found with username: " + user.username()));
 
         UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,() -> userService.changeAccess(user));
-        assertEquals("User not found with username: " + user.getUsername(), exception.getMessage());
+        assertEquals("User not found with username: " + user.username(), exception.getMessage());
         verifyNoMoreInteractions(userRepository);
-        verify(userRepository, times(1)).findByUsername(user.getUsername());
+        verify(userRepository, times(1)).findByUsername(user.username());
     }
 
     @Test
@@ -289,15 +285,14 @@ public class UserServiceTest {
         User administrator = createUser();
         administrator.setRole(new Role("ADMINISTRATOR"));
 
-        UserAccessRequest user = new UserAccessRequest();
-        user.setUsername("username");
+        UserAccessRequestDTO user = new UserAccessRequestDTO("username", "");
 
         when(userRepository.findByUsername(administrator.getUsername())).thenReturn(Optional.of(administrator));
 
         AdministratorBlockedException exception = assertThrows(AdministratorBlockedException.class,() -> userService.changeAccess(user));
         assertEquals("Administrator cannot be blocked", exception.getMessage());
         verifyNoMoreInteractions(userRepository);
-        verify(userRepository, times(1)).findByUsername(user.getUsername());
+        verify(userRepository, times(1)).findByUsername(user.username());
     }
 
     @ParameterizedTest
@@ -307,16 +302,13 @@ public class UserServiceTest {
         user.setRole(new Role(userRole));
         user.setEnabled(false);
 
-        UserAccessRequest userAccessRequest = new UserAccessRequest();
-        userAccessRequest.setUsername("username");
-        userAccessRequest.setOperation(userOperation);
-
-        StatusDto expectedStatus = new StatusDto("User " + user.getUsername() + " " + userAccessRequest.getOperation().toLowerCase() + "ed!");
+        UserAccessRequestDTO userAccessRequestDTO = new UserAccessRequestDTO("username", userOperation);
+        StatusDTO expectedStatus = new StatusDTO("User " + user.getUsername() + " " + userAccessRequestDTO.operation().toLowerCase() + "ed!");
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
-        StatusDto actualStatus = userService.changeAccess(userAccessRequest);
+        StatusDTO actualStatus = userService.changeAccess(userAccessRequestDTO);
 
         assertEquals(expectedStatus, actualStatus);
 

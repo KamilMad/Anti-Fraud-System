@@ -4,9 +4,9 @@ import com.example.AntiFraudSystem.errors.AdministratorBlockedException;
 import com.example.AntiFraudSystem.errors.RoleAlreadyAssignedException;
 import com.example.AntiFraudSystem.model.Role;
 import com.example.AntiFraudSystem.model.User;
-import com.example.AntiFraudSystem.payload.StatusDto;
-import com.example.AntiFraudSystem.payload.UserAccessRequest;
-import com.example.AntiFraudSystem.payload.UserDto;
+import com.example.AntiFraudSystem.payload.StatusDTO;
+import com.example.AntiFraudSystem.payload.UserAccessRequestDTO;
+import com.example.AntiFraudSystem.payload.UserDTO;
 import com.example.AntiFraudSystem.payload.UserRoleDto;
 import com.example.AntiFraudSystem.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDto saveUser(User user) {
+    public UserDTO saveUser(User user) {
         User newUser = new User();
         copyUserProperties(user, newUser);
         setEncodedPassword(user, newUser);
@@ -71,7 +71,7 @@ public class UserService {
         user.setRole(merchantRole);
         user.setEnabled(false);
     }
-    public UserDto updateRole(UserRoleDto user){
+    public UserDTO updateRole(UserRoleDto user){
 
         User eUser = userRepository.findByUsername(user.getUsername()).
                 orElseThrow(() ->new UsernameNotFoundException("User not found with username " + user.getUsername()));
@@ -113,7 +113,7 @@ public class UserService {
         return user.isPresent();
     }
 
-    public List<UserDto> findAll(){
+    public List<UserDTO> findAll(){
         return userRepository
                 .findAll()
                 .stream()
@@ -127,28 +127,26 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public StatusDto changeAccess(UserAccessRequest userAccessRequest) {
+    public StatusDTO changeAccess(UserAccessRequestDTO userAccessRequestDTO) {
 
-        User user = userRepository.findByUsername(userAccessRequest.getUsername()).orElseThrow(()
-                -> new UsernameNotFoundException("User not found with username: " + userAccessRequest.getUsername()));
+        User user = userRepository.findByUsername(userAccessRequestDTO.username()).orElseThrow(()
+                -> new UsernameNotFoundException("User not found with username: " + userAccessRequestDTO.username()));
 
         if (user.getRole().getName().equals("ADMINISTRATOR")){
             throw new AdministratorBlockedException("Administrator cannot be blocked");
         }
 
-        user.setEnabled(!userAccessRequest.getOperation().equals("LOCK"));
+        user.setEnabled(!userAccessRequestDTO.operation().equals("LOCK"));
         userRepository.save(user);
 
-        return new StatusDto("User " + user.getUsername() + " " + userAccessRequest.getOperation().toLowerCase() + "ed!");
+        return new StatusDTO("User " + user.getUsername() + " " + userAccessRequestDTO.operation().toLowerCase() + "ed!");
     }
 
-    private UserDto mapToDto(User user){
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setName(user.getName());
-        userDto.setUsername(user.getUsername());
-        userDto.setRole(user.getRole().getName());
-
-        return userDto;
+    private UserDTO mapToDto(User user){
+        return new UserDTO(
+                user.getId(),
+                user.getName(),
+                user.getUsername(),
+                user.getRole().getName());
     }
 }

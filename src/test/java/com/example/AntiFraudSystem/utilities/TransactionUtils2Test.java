@@ -3,7 +3,6 @@ package com.example.AntiFraudSystem.utilities;
 import com.example.AntiFraudSystem.model.AddressIp;
 import com.example.AntiFraudSystem.model.Card;
 import com.example.AntiFraudSystem.model.Transaction;
-import com.example.AntiFraudSystem.payload.TransactionRequestDto;
 import com.example.AntiFraudSystem.repositories.AddressIpRepository;
 import com.example.AntiFraudSystem.repositories.CardRepository;
 import com.example.AntiFraudSystem.repositories.TransactionRepository;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.when;
 
 
@@ -38,15 +36,15 @@ public class TransactionUtils2Test {
     @InjectMocks
     private TransactionUtils2 transactionUtils2;
 
-    private Transaction transactionRequestDto;
+    private Transaction transaction;
     @BeforeEach
     public void init() {
-        transactionRequestDto = new Transaction();
-        transactionRequestDto.setAmount(100L);
-        transactionRequestDto.setIp("192.168.1.1");
-        transactionRequestDto.setRegion("EAP");
-        transactionRequestDto.setNumber("4000008449433403");
-        transactionRequestDto.setDate(LocalDateTime.now());
+        transaction = new Transaction();
+        transaction.setAmount(100L);
+        transaction.setIp("192.168.1.1");
+        transaction.setRegion("EAP");
+        transaction.setNumber("4000008449433403");
+        transaction.setDate(LocalDateTime.now());
     }
 
     @ParameterizedTest
@@ -56,15 +54,15 @@ public class TransactionUtils2Test {
     })
     public void testGetStatus_Amount(Long amount) {
 
-        transactionRequestDto.setAmount(amount);
+        transaction.setAmount(amount);
 
         when(transactionRepository.findAllByNumberAndDateBetween(
-                transactionRequestDto.getNumber(),
-                transactionRequestDto.getDate().minusHours(1),
-                transactionRequestDto.getDate()))
+                transaction.getNumber(),
+                transaction.getDate().minusHours(1),
+                transaction.getDate()))
                 .thenReturn(Collections.emptyList());
 
-        TransactionStatus result = transactionUtils2.getStatus(transactionRequestDto);
+        TransactionStatus result = transactionUtils2.getStatus(transaction);
 
         if (amount <= 200){
             assertEquals(Status.ALLOWED, result.getStatus());
@@ -84,12 +82,12 @@ public class TransactionUtils2Test {
         Transaction transaction3 = createTransaction(2L, 100L, "192.168.1.3", "EAP", "4000008449433403", LocalDateTime.now().minusMinutes(20));
         Transaction transaction4 = createTransaction(3L, 100L, "192.168.1.4", "EAP", "4000008449433403", LocalDateTime.now().minusMinutes(30));
 
-        when(transactionRepository.findAllByNumberAndDateBetween(transactionRequestDto.getNumber(),
-                transactionRequestDto.getDate().minusHours(1),
-                transactionRequestDto.getDate()))
+        when(transactionRepository.findAllByNumberAndDateBetween(transaction.getNumber(),
+                transaction.getDate().minusHours(1),
+                transaction.getDate()))
                 .thenReturn(List.of(transaction2, transaction3, transaction4));
 
-        TransactionStatus result = transactionUtils2.getStatus(transactionRequestDto);
+        TransactionStatus result = transactionUtils2.getStatus(transaction);
 
         assertEquals(Status.MANUAL_PROCESSING, result.getStatus());
         assertEquals(1, result.getReasons().size());
@@ -103,12 +101,12 @@ public class TransactionUtils2Test {
         Transaction transaction3 = createTransaction(2L, 100L, "192.168.1.1", "HIC", "4000008449433403", LocalDateTime.now().minusMinutes(20));
         Transaction transaction4 = createTransaction(3L, 100L, "192.168.1.1", "LAC", "4000008449433403", LocalDateTime.now().minusMinutes(30));
 
-        when(transactionRepository.findAllByNumberAndDateBetween(transactionRequestDto.getNumber(),
-                transactionRequestDto.getDate().minusHours(1),
-                transactionRequestDto.getDate()))
+        when(transactionRepository.findAllByNumberAndDateBetween(transaction.getNumber(),
+                transaction.getDate().minusHours(1),
+                transaction.getDate()))
                 .thenReturn(List.of(transaction2, transaction3, transaction4));
 
-        TransactionStatus result = transactionUtils2.getStatus(transactionRequestDto);
+        TransactionStatus result = transactionUtils2.getStatus(transaction);
 
         assertEquals(Status.MANUAL_PROCESSING, result.getStatus());
         assertEquals(1, result.getReasons().size());
@@ -122,12 +120,12 @@ public class TransactionUtils2Test {
         Transaction transaction4 = createTransaction(3L, 100L, "192.168.1.4", "ECA", "4000008449433403", LocalDateTime.now().minusMinutes(30));
         Transaction transaction5 = createTransaction(4L, 100L, "192.168.1.5", "ECA", "4000008449433403", LocalDateTime.now().minusMinutes(35));
 
-        when(transactionRepository.findAllByNumberAndDateBetween(transactionRequestDto.getNumber(),
-                transactionRequestDto.getDate().minusHours(1),
-                transactionRequestDto.getDate()))
+        when(transactionRepository.findAllByNumberAndDateBetween(transaction.getNumber(),
+                transaction.getDate().minusHours(1),
+                transaction.getDate()))
                 .thenReturn(List.of(transaction2, transaction3, transaction4, transaction5));
 
-        TransactionStatus result = transactionUtils2.getStatus(transactionRequestDto);
+        TransactionStatus result = transactionUtils2.getStatus(transaction);
 
         assertEquals(Status.PROHIBITED, result.getStatus());
         assertEquals(1, result.getReasons().size());
@@ -141,12 +139,12 @@ public class TransactionUtils2Test {
         Transaction transaction4 = createTransaction(3L, 100L, "192.168.1.1", "EAP", "4000008449433403", LocalDateTime.now().minusMinutes(30));
         Transaction transaction5 = createTransaction(4L, 100L, "192.168.1.1", "LAC", "4000008449433403", LocalDateTime.now().minusMinutes(35));
 
-        when(transactionRepository.findAllByNumberAndDateBetween(transactionRequestDto.getNumber(),
-                transactionRequestDto.getDate().minusHours(1),
-                transactionRequestDto.getDate()))
+        when(transactionRepository.findAllByNumberAndDateBetween(transaction.getNumber(),
+                transaction.getDate().minusHours(1),
+                transaction.getDate()))
                 .thenReturn(List.of(transaction2, transaction3, transaction4, transaction5));
 
-        TransactionStatus result = transactionUtils2.getStatus(transactionRequestDto);
+        TransactionStatus result = transactionUtils2.getStatus(transaction);
 
         assertEquals(Status.PROHIBITED, result.getStatus());
         assertEquals(1, result.getReasons().size());
@@ -156,9 +154,9 @@ public class TransactionUtils2Test {
     @Test
     public void testGetStatus_PROHIBITED_cardStolen() {
 
-        when(cardRepository.findByNumber(transactionRequestDto.getNumber())).thenReturn(Optional.of(new Card()));
+        when(cardRepository.findByNumber(transaction.getNumber())).thenReturn(Optional.of(new Card()));
 
-        TransactionStatus result = transactionUtils2.getStatus(transactionRequestDto);
+        TransactionStatus result = transactionUtils2.getStatus(transaction);
 
         assertEquals(Status.PROHIBITED, result.getStatus());
         assertEquals(1, result.getReasons().size());
@@ -168,9 +166,9 @@ public class TransactionUtils2Test {
     @Test
     public void testGetStatus_PROHIBITED_suspiciousIp() {
 
-        when(addressIpRepository.findByIp(transactionRequestDto.getIp())).thenReturn(Optional.of(new AddressIp()));
+        when(addressIpRepository.findByIp(transaction.getIp())).thenReturn(Optional.of(new AddressIp()));
 
-        TransactionStatus result = transactionUtils2.getStatus(transactionRequestDto);
+        TransactionStatus result = transactionUtils2.getStatus(transaction);
 
         assertEquals(Status.PROHIBITED, result.getStatus());
         assertEquals(1, result.getReasons().size());

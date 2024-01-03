@@ -46,7 +46,7 @@ public class AuthUserControllerTest {
     @Test
     public void testRegisterUser_Successfully() throws Exception {
 
-        UserDto userDto = new UserDto(1L, "Kamil", "user", "ADMINISTRATOR");
+        UserDTO userDto = new UserDTO(1L, "Kamil", "user", "ADMINISTRATOR");
 
         // Mock the behavior of userService
         when(userService.userExists("user")).thenReturn(false);
@@ -62,14 +62,14 @@ public class AuthUserControllerTest {
 
     @Test
     public void testGetAllAvailableAuthUsers_Successfully() throws Exception {
-        UserDto userDto1 = createUserDto(1L, "user1", "username1", "SUPPORT");
-        UserDto userDto2 = createUserDto(2L, "user2", "username2", "MERCHANT");
-        UserDto userDto3 = createUserDto(3L, "user3", "username3", "ADMINISTRATOR");
+        UserDTO userDTO1 = createUserDto(1L, "user1", "username1", "SUPPORT");
+        UserDTO userDTO2 = createUserDto(2L, "user2", "username2", "MERCHANT");
+        UserDTO userDTO3 = createUserDto(3L, "user3", "username3", "ADMINISTRATOR");
 
-        List<UserDto> users = new ArrayList<>();
-        users.add(userDto1);
-        users.add(userDto2);
-        users.add(userDto3);
+        List<UserDTO> users = new ArrayList<>();
+        users.add(userDTO1);
+        users.add(userDTO2);
+        users.add(userDTO3);
 
         when(userService.findAll()).thenReturn(users);
 
@@ -84,7 +84,7 @@ public class AuthUserControllerTest {
     public void testDeleteUser_SuccessfulDeletion() throws Exception {
 
         String usernameToDelete = "userToDelete";
-        UserDeleteDto expectedResponse = new UserDeleteDto(usernameToDelete, "Deleted successfully!");
+        UserDeleteDTO expectedResponse = new UserDeleteDTO(usernameToDelete, "Deleted successfully!");
 
         mockMvc.perform(delete("/api/auth/user/{username}", usernameToDelete))
                 .andExpect(status().isOk())
@@ -108,15 +108,15 @@ public class AuthUserControllerTest {
         userRoleDto.setRole("SUPPORT");
         userRoleDto.setUsername("user");
 
-        UserDto updatedUserDto= new UserDto(1L, "Kamil", "user", "SUPPORT");
+        UserDTO updatedUserDTO = new UserDTO(1L, "Kamil", "user", "SUPPORT");
 
-        when(userService.updateRole(userRoleDto)).thenReturn(updatedUserDto);
+        when(userService.updateRole(userRoleDto)).thenReturn(updatedUserDTO);
         
         mockMvc.perform(put("/api/auth//role")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userRoleDto))) // Convert userRoleDto to JSON
                 .andExpect(status().isOk())
-                .andExpect(content().json(asJsonString(updatedUserDto)));
+                .andExpect(content().json(asJsonString(updatedUserDTO)));
     }
 
     @ParameterizedTest
@@ -125,17 +125,15 @@ public class AuthUserControllerTest {
             "username, UNLOCK"
     })
     public void testUpdateUserAccess_SuccessfulUpdate(String username, String operation) throws Exception {
-        UserAccessRequest userAccessRequest = new UserAccessRequest();
-        userAccessRequest.setUsername(username);
-        userAccessRequest.setOperation(operation);
+        UserAccessRequestDTO userAccessRequestDTO = new UserAccessRequestDTO(username, operation);
 
-        StatusDto statusDto = new StatusDto("User " + userAccessRequest.getUsername() + " " + userAccessRequest.getOperation().toLowerCase() + "ed!");
+        StatusDTO statusDto = new StatusDTO("User " + userAccessRequestDTO.username() + " " + userAccessRequestDTO.operation().toLowerCase() + "ed!");
 
-        when(userService.changeAccess(userAccessRequest)).thenReturn(statusDto);
+        when(userService.changeAccess(userAccessRequestDTO)).thenReturn(statusDto);
 
         mockMvc.perform(put("/api/auth/access")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(userAccessRequest)))
+                        .content(asJsonString(userAccessRequestDTO)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(asJsonString(statusDto)));
 
@@ -150,12 +148,11 @@ public class AuthUserControllerTest {
         }
     }
 
-    private UserDto createUserDto(Long id, String name, String username, String role) {
-        UserDto userDto = new UserDto();
-        userDto.setId(id);
-        userDto.setName(name);
-        userDto.setUsername(username);
-        userDto.setRole(role);
-        return userDto;
+    private UserDTO createUserDto(Long id, String name, String username, String role) {
+        return new UserDTO(
+                id,
+                name,
+                username,
+                role);
     }
 }

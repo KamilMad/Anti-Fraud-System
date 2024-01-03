@@ -2,15 +2,12 @@ package com.example.AntiFraudSystem.service;
 
 import com.example.AntiFraudSystem.errors.CardNumberNotValid;
 import com.example.AntiFraudSystem.model.Transaction;
-import com.example.AntiFraudSystem.payload.TransactionRequestDto;
-import com.example.AntiFraudSystem.payload.TransactionResponse;
+import com.example.AntiFraudSystem.payload.TransactionResponseDTO;
 import com.example.AntiFraudSystem.repositories.TransactionRepository;
 import com.example.AntiFraudSystem.services.TransactionService;
-import com.example.AntiFraudSystem.utilities.LuhnAlgorithm;
 import com.example.AntiFraudSystem.utilities.Status;
 import com.example.AntiFraudSystem.utilities.TransactionStatus;
 import com.example.AntiFraudSystem.utilities.TransactionUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,17 +53,15 @@ public class TransactionServiceTest {
         TransactionStatus transactionStatus = new TransactionStatus();
         transactionStatus.setStatus(Status.ALLOWED);
 
-        TransactionResponse response = new TransactionResponse();
-        response.setResult(Status.ALLOWED);
-        response.setInfo("none");
+        TransactionResponseDTO response = new TransactionResponseDTO(Status.ALLOWED, "none");
 
         List<String> reasons = new ArrayList<>();
         transactionStatus.setReasons(reasons);
 
         when(transactionRepository.save(any(Transaction.class))).thenReturn(validTransaction);
-        when(transactionUtils.getStatus(any(TransactionRequestDto.class))).thenReturn(transactionStatus);
+        when(transactionUtils.getStatus(any(Transaction.class))).thenReturn(transactionStatus);
 
-        TransactionResponse result = transactionService.makeTransaction(validTransaction);
+        TransactionResponseDTO result = transactionService.makeTransaction(validTransaction);
         assertNotNull(result);
         assertEquals(response, result);
 

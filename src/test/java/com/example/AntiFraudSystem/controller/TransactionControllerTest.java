@@ -4,8 +4,8 @@ import com.example.AntiFraudSystem.controllers.TransactionController;
 import com.example.AntiFraudSystem.model.AddressIp;
 import com.example.AntiFraudSystem.model.Card;
 import com.example.AntiFraudSystem.model.Transaction;
-import com.example.AntiFraudSystem.payload.StatusDto;
-import com.example.AntiFraudSystem.payload.TransactionResponse;
+import com.example.AntiFraudSystem.payload.StatusDTO;
+import com.example.AntiFraudSystem.payload.TransactionResponseDTO;
 import com.example.AntiFraudSystem.services.AddressIPService;
 import com.example.AntiFraudSystem.services.CardService;
 import com.example.AntiFraudSystem.services.TransactionService;
@@ -55,7 +55,7 @@ public class TransactionControllerTest {
 
     @ParameterizedTest
     @MethodSource("transactionDataProvider")
-    void testMakeTransaction(Transaction transaction, TransactionResponse expectedResponse) throws Exception {
+    void testMakeTransaction(Transaction transaction, TransactionResponseDTO expectedResponse) throws Exception {
         when(transactionService.makeTransaction(transaction)).thenReturn(expectedResponse);
 
         ResultActions result = mockMvc.perform(post("/api/antifraud/transaction")
@@ -65,8 +65,8 @@ public class TransactionControllerTest {
 
 
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.result", CoreMatchers.is(expectedResponse.getResult().toString())))
-                .andExpect(jsonPath("$.info", CoreMatchers.is(expectedResponse.getInfo())));
+                .andExpect(jsonPath("$.result", CoreMatchers.is(expectedResponse.result().toString())))
+                .andExpect(jsonPath("$.info", CoreMatchers.is(expectedResponse.info())));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class TransactionControllerTest {
     @Test
     public void testDeleteSuspiciousAddress() throws Exception {
         String ip = "192.168.1.1";
-        StatusDto response = new StatusDto("IP " + ip + " successfully removed!");
+        StatusDTO response = new StatusDTO("IP " + ip + " successfully removed!");
 
         doNothing().when(addressIPService).delete(ip);
 
@@ -142,7 +142,7 @@ public class TransactionControllerTest {
     @Test
     public void testDeleteStolenCard() throws Exception{
         String number = "4929156341843324";
-        StatusDto response = new StatusDto("Card " + number + " successfully removed!");
+        StatusDTO response = new StatusDTO("Card " + number + " successfully removed!");
 
         doNothing().when(cardService).deleteCard(number);
 
@@ -188,11 +188,8 @@ public class TransactionControllerTest {
         );
     }
 
-    private static TransactionResponse createExpectedResponse(Status status, String info) {
-        TransactionResponse expectedResponse = new TransactionResponse();
-        expectedResponse.setResult(status);
-        expectedResponse.setInfo(info);
-        return expectedResponse;
+    private static TransactionResponseDTO createExpectedResponse(Status status, String info) {
+        return new TransactionResponseDTO(status, info);
     }
     private static Transaction createTransaction(String ip, String region, String number, Long amount) {
         Transaction transaction = new Transaction();

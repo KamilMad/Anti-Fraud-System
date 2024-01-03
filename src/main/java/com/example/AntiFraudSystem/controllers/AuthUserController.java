@@ -30,16 +30,16 @@ public class AuthUserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User exists");
         }
 
-        UserDto userDto = userService.saveUser(user);
+        UserDTO userDto = userService.saveUser(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<UserDto>> getAllAvailableAuthUsers(){
+    public ResponseEntity<List<UserDTO>> getAllAvailableAuthUsers(){
 
-        List<UserDto> users =  userService.findAll();
-        users.sort(Comparator.comparing(UserDto::getId));
+        List<UserDTO> users =  userService.findAll();
+        users.sort(Comparator.comparing(UserDTO::id));
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -47,21 +47,21 @@ public class AuthUserController {
     }
 
     @DeleteMapping("/user/{username}")
-    public ResponseEntity<UserDeleteDto> deleteUser(@PathVariable String username){
+    public ResponseEntity<UserDeleteDTO> deleteUser(@PathVariable String username){
         userService.deleteUserByUsername(username);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new UserDeleteDto(username, "Deleted successfully!"));
+                .body(new UserDeleteDTO(username, "Deleted successfully!"));
     }
 
     @PutMapping("/role")
-    public ResponseEntity<UserDto> changeRole(@RequestBody UserRoleDto user){
+    public ResponseEntity<UserDTO> changeRole(@RequestBody UserRoleDto user){
         return new ResponseEntity<>(userService.updateRole(user), HttpStatus.OK);
     }
 
     @PutMapping("/access")
-    public ResponseEntity<StatusDto> updateUserAccess(@RequestBody UserAccessRequest userAccessRequest){
-        return new ResponseEntity<>(userService.changeAccess(userAccessRequest), HttpStatus.OK);
+    public ResponseEntity<StatusDTO> updateUserAccess(@RequestBody UserAccessRequestDTO userAccessRequestDTO){
+        return new ResponseEntity<>(userService.changeAccess(userAccessRequestDTO), HttpStatus.OK);
     }
 }
