@@ -23,7 +23,7 @@ public class TransactionUtils2 {
         this.transactionRepository = transactionRepository;
     }
 
-    public TransactionStatus getStatus(TransactionRequestDto transaction) {
+    public TransactionStatus getStatus(Transaction transaction) {
         List<String> reasons = new ArrayList<>();
         Set<String> distinctRegions = new HashSet<>();
         Set<String> distinctIPs = new HashSet<>();
@@ -35,7 +35,7 @@ public class TransactionUtils2 {
         return new TransactionStatus(status, reasons);
     }
 
-    private void processPastTransactions(TransactionRequestDto transaction, Set<String> distinctRegions, Set<String> distinctIPs) {
+    private void processPastTransactions(Transaction transaction, Set<String> distinctRegions, Set<String> distinctIPs) {
         List<Transaction> pastTransactions = transactionRepository.findAllByNumberAndDateBetween(
                 transaction.getNumber(),
                 transaction.getDate().minusHours(1),
@@ -48,7 +48,7 @@ public class TransactionUtils2 {
         }
     }
 
-    private Status calculateStatus(TransactionRequestDto transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
+    private Status calculateStatus(Transaction transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
         if (isProhibited(transaction, reasons, distinctRegions, distinctIPs)) {
             return Status.PROHIBITED;
         } else if (isManualProcessing(transaction, reasons, distinctRegions, distinctIPs)) {
@@ -58,7 +58,7 @@ public class TransactionUtils2 {
         }
     }
 
-    private boolean isProhibited(TransactionRequestDto transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
+    private boolean isProhibited(Transaction transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
         boolean prohibited = isIpSuspicious(transaction) || isCardStolen(transaction)
                 || isAmountProhibited(transaction) || distinctRegions.size() > 3
                 || distinctIPs.size() > 3;
@@ -70,7 +70,7 @@ public class TransactionUtils2 {
         return prohibited;
     }
 
-    private void addReasonsForProhibited(TransactionRequestDto transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
+    private void addReasonsForProhibited(Transaction transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
         if (isIpSuspicious(transaction)) {
             reasons.add("ip");
         }
@@ -92,7 +92,7 @@ public class TransactionUtils2 {
         }
     }
 
-    private boolean isManualProcessing(TransactionRequestDto transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
+    private boolean isManualProcessing(Transaction transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
         boolean manualProcessing = isManualProcessingAmount(transaction) || distinctRegions.size() == 3
                 || distinctIPs.size() == 3;
 
@@ -103,7 +103,7 @@ public class TransactionUtils2 {
         return manualProcessing;
     }
 
-    private void addReasonsForManualProcessing(TransactionRequestDto transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
+    private void addReasonsForManualProcessing(Transaction transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs) {
         if (isManualProcessingAmount(transaction)) {
             reasons.add("amount");
         }
@@ -117,21 +117,21 @@ public class TransactionUtils2 {
         }
     }
 
-    private boolean isAmountProhibited(TransactionRequestDto transaction) {
+    private boolean isAmountProhibited(Transaction transaction) {
         long amount = transaction.getAmount();
         return amount > 1500;
     }
 
-    private boolean isManualProcessingAmount(TransactionRequestDto transaction) {
+    private boolean isManualProcessingAmount(Transaction transaction) {
         long amount = transaction.getAmount();
         return amount > 200 && amount <= 1500;
     }
 
-    private boolean isCardStolen(TransactionRequestDto transaction) {
+    private boolean isCardStolen(Transaction transaction) {
         return cardRepository.findByNumber(transaction.getNumber()).isPresent();
     }
 
-    private boolean isIpSuspicious(TransactionRequestDto transaction) {
+    private boolean isIpSuspicious(Transaction transaction) {
         return addressIpRepository.findByIp(transaction.getIp()).isPresent();
     }
 }

@@ -38,7 +38,8 @@ public class TransactionService {
         validateRegion(transaction.getRegion());
 
         TransactionRequestDto transactionRequestDto = mapEntityToDto(transaction);
-        TransactionStatus transactionStatus = transactionUtils.getStatus(transactionRequestDto);
+        //TransactionStatus transactionStatus = transactionUtils.getStatus(transactionRequestDto);
+        TransactionStatus transactionStatus = transactionUtils.getStatus(transaction);
 
         List<String> reasons = transactionStatus.getReasons();
         if (Status.ALLOWED.equals(transactionStatus.getStatus()))
@@ -78,14 +79,12 @@ public class TransactionService {
 
     public TransactionRequestDto mapEntityToDto(Transaction transaction){
 
-        TransactionRequestDto dto = new TransactionRequestDto();
-        dto.setAmount(transaction.getAmount());
-        dto.setDate(transaction.getDate());
-        dto.setNumber(transaction.getNumber());
-        dto.setIp(transaction.getIp());
-        dto.setRegion(transaction.getRegion().toString());
-
-        return dto;
+        return new TransactionRequestDto(
+                transaction.getAmount(),
+                transaction.getIp(),
+                transaction.getNumber(),
+                transaction.getRegion(),
+                transaction.getDate());
     }
 
 }

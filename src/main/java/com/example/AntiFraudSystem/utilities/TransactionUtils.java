@@ -24,7 +24,7 @@ public class TransactionUtils {
         this.addressIpRepository = addressIpRepository;
         this.transactionRepository = transactionRepository;
     }
-    public TransactionStatus getStatus(TransactionRequestDto transaction) {
+    public TransactionStatus getStatus(Transaction transaction) {
         List<String> reasons = new ArrayList<>();
 
         List<Transaction> pastTransactions = transactionRepository.findAllByNumberAndDateBetween(
@@ -87,25 +87,25 @@ public class TransactionUtils {
         return new TransactionStatus(status, reasons);
     }
 
-    private boolean isAmountProhibited(TransactionRequestDto transaction) {
+    private boolean isAmountProhibited(Transaction transaction) {
         long amount = transaction.getAmount();
         return amount > 1500;
     }
 
-    private boolean isManualProcessingAmount(TransactionRequestDto transaction) {
+    private boolean isManualProcessingAmount(Transaction transaction) {
         long amount = transaction.getAmount();
         return amount > 200 && amount <= 1500;
     }
 
-    private boolean isCardStolen(TransactionRequestDto transaction) {
+    private boolean isCardStolen(Transaction transaction) {
         return cardRepository.findByNumber(transaction.getNumber()).isPresent();
     }
 
-    private boolean isIpSuspicious(TransactionRequestDto transaction) {
+    private boolean isIpSuspicious(Transaction transaction) {
         return addressIpRepository.findByIp(transaction.getIp()).isPresent();
     }
 
-    public void addReasonsForProhibited(TransactionRequestDto transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs){
+    public void addReasonsForProhibited(Transaction transaction, List<String> reasons, Set<String> distinctRegions, Set<String> distinctIPs){
         if (isIpSuspicious(transaction)) {
             reasons.add("ip");
         }

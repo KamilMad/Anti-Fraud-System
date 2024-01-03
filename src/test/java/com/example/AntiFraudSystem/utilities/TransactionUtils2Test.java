@@ -38,10 +38,10 @@ public class TransactionUtils2Test {
     @InjectMocks
     private TransactionUtils2 transactionUtils2;
 
-    private TransactionRequestDto transactionRequestDto;
+    private Transaction transactionRequestDto;
     @BeforeEach
     public void init() {
-        transactionRequestDto = new TransactionRequestDto();
+        transactionRequestDto = new Transaction();
         transactionRequestDto.setAmount(100L);
         transactionRequestDto.setIp("192.168.1.1");
         transactionRequestDto.setRegion("EAP");
