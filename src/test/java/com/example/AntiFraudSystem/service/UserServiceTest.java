@@ -98,29 +98,25 @@ public class UserServiceTest {
     @Test
     public void testUpdateRole_UserNotFound() {
 
-        UserRoleDto userRoleDto = new UserRoleDto();
-        userRoleDto.setUsername("user");
-        userRoleDto.setRole("MERCHANT");
+        UserRoleDto userRoleDto = new UserRoleDto("user", "MERCHANT");
 
-        when(userRepository.findByUsername("user")).thenThrow(new UsernameNotFoundException("User not found with username " + userRoleDto.getUsername()));
+        when(userRepository.findByUsername("user")).thenThrow(new UsernameNotFoundException("User not found with username " + userRoleDto.username()));
 
         UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> userService.updateRole(userRoleDto));
-        assertEquals("User not found with username " + userRoleDto.getUsername(), exception.getMessage());
+        assertEquals("User not found with username " + userRoleDto.username(), exception.getMessage());
         verifyNoInteractions(roleService);
         verifyNoMoreInteractions(userRepository);
     }
 
     @Test
     public void testUpdateRole_IllegalRole() {
-        UserRoleDto userRoleDto = new UserRoleDto();
-        userRoleDto.setUsername("user");
-        userRoleDto.setRole("ROLE");
+        UserRoleDto userRoleDto = new UserRoleDto("user", "ROLE");
 
         User user = createUser();
         user.setEnabled(true);
-        user.setRole(new Role(userRoleDto.getRole()));;
+        user.setRole(new Role(userRoleDto.role()));;
 
-        when(userRepository.findByUsername(userRoleDto.getUsername())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(userRoleDto.username())).thenReturn(Optional.of(user));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,() -> userService.updateRole(userRoleDto));
         assertEquals("Illegal. eUser role is " +  user.getRole().getName(), exception.getMessage());
@@ -130,15 +126,13 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateRole_RoleAlreadyAssigned() {
-        UserRoleDto userRoleDto = new UserRoleDto();
-        userRoleDto.setUsername("user");
-        userRoleDto.setRole("MERCHANT");
+        UserRoleDto userRoleDto = new UserRoleDto("user", "MERCHANT");
 
         User user = createUser();
         user.setEnabled(true);
-        user.setRole(new Role(userRoleDto.getRole()));
+        user.setRole(new Role(userRoleDto.role()));
 
-        when(userRepository.findByUsername(userRoleDto.getUsername())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(userRoleDto.username())).thenReturn(Optional.of(user));
 
         RoleAlreadyAssignedException exception = assertThrows(RoleAlreadyAssignedException.class, () -> userService.updateRole(userRoleDto));
         assertEquals("Role already assigned to user", exception.getMessage());
@@ -150,9 +144,7 @@ public class UserServiceTest {
     public void testUpdateRole_RoleIsSupport() {
         Role supportRole = new Role("SUPPORT");
 
-        UserRoleDto userRoleDto = new UserRoleDto();
-        userRoleDto.setUsername("user");
-        userRoleDto.setRole(supportRole.getName());
+        UserRoleDto userRoleDto = new UserRoleDto("user", supportRole.getName());
 
         User user = createUser();
         user.setEnabled(true);
@@ -160,21 +152,19 @@ public class UserServiceTest {
 
         UserDTO expectedUserDTO = new UserDTO(1l, user.getName(), user.getUsername(), supportRole.getName());
 
-        when(userRepository.findByUsername(userRoleDto.getUsername())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(userRoleDto.username())).thenReturn(Optional.of(user));
         when(roleService.getOrCreateRole("SUPPORT")).thenReturn(supportRole);
         when(userRepository.save(user)).thenReturn(user);
 
         UserDTO actualUserDTO = userService.updateRole(userRoleDto);
-        assertEquals(expectedUserDTO.getRole(), actualUserDTO.getRole());
+        assertEquals(expectedUserDTO.role(), actualUserDTO.role());
     }
 
     @Test
     public void testUpdateRole_RoleIsMerchant() {
         Role merchantRole = new Role("MERCHANT");
 
-        UserRoleDto userRoleDto = new UserRoleDto();
-        userRoleDto.setUsername("user");
-        userRoleDto.setRole(merchantRole.getName());
+        UserRoleDto userRoleDto = new UserRoleDto("user", merchantRole.getName());
 
         User user = createUser();
         user.setEnabled(true);
@@ -182,12 +172,12 @@ public class UserServiceTest {
 
         UserDTO expectedUserDTO = new UserDTO(1l, user.getName(), user.getUsername(), merchantRole.getName());
 
-        when(userRepository.findByUsername(userRoleDto.getUsername())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(userRoleDto.username())).thenReturn(Optional.of(user));
         when(roleService.getOrCreateRole("MERCHANT")).thenReturn(merchantRole);
         when(userRepository.save(user)).thenReturn(user);
 
         UserDTO actualUserDTO = userService.updateRole(userRoleDto);
-        assertEquals(expectedUserDTO.getRole(), actualUserDTO.getRole());
+        assertEquals(expectedUserDTO.role(), actualUserDTO.role());
     }
 
     @Test

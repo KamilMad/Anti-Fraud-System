@@ -104,9 +104,7 @@ public class AuthUserControllerTest {
 
     @Test
     public void testChangeRole_SuccessfulUpdate() throws Exception {
-        UserRoleDto userRoleDto =new UserRoleDto();
-        userRoleDto.setRole("SUPPORT");
-        userRoleDto.setUsername("user");
+        UserRoleDto userRoleDto =new UserRoleDto("user","SUPPORT");
 
         UserDTO updatedUserDTO = new UserDTO(1L, "Kamil", "user", "SUPPORT");
 
